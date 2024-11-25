@@ -13,12 +13,18 @@ params ["_animalType", "_src", "_amount", "_invincible", "_offset", "_scale", "_
 private["_animalClassname", "_animalResponse", "_animalAceOffset"]; 
 
 // set correct class names
-if ( _animalType == "Dog" ) then { _animalClassname = "Fin_random_F"; _animalResponse = localize "STR_CROWSZA_Misc_animal_sound_dog"; _animalAceOffset = [0,0,0.5]; }; 
-if ( _animalType == "Sheep" ) then { _animalClassname = "Sheep_random_F"; _animalResponse = localize "STR_CROWSZA_Misc_animal_sound_sheep"; _animalAceOffset = [0,0.5,0.8];}; 
-if ( _animalType == "Goat" ) then { _animalClassname = "Goat_random_F"; _animalResponse = localize "STR_CROWSZA_Misc_animal_sound_goat"; _animalAceOffset = [0,0.4,0.7];}; 
-if ( _animalType == "Rabbit" ) then { _animalClassname = "Rabbit_F"; _animalResponse = localize "STR_CROWSZA_Misc_animal_sound_rabbit"; _animalAceOffset = [0,0.2,0.2];}; 
-if ( _animalType == "Hen" ) then { _animalClassname = "Hen_random_F"; _animalResponse = localize "STR_CROWSZA_Misc_animal_sound_hen"; _animalAceOffset = [0,0.2,0.3];}; 
-if ( _animalType == "Snake" ) then { _animalClassname = "Snake_random_F"; _animalResponse = localize "STR_CROWSZA_Misc_animal_sound_snake"; _animalAceOffset = [0,0,0];}; 
+
+switch (_animalType) do {
+	case "Dog": 	 { _animalClassname = "Fin_random_F"; 	        _animalResponse = localize "STR_CROWSZA_Misc_animal_sound_dog"; 	    _animalAceOffset = [0,0,0.5]; 	};
+	case "Sheep": 	 { _animalClassname = "Sheep_random_F"; 	    _animalResponse = localize "STR_CROWSZA_Misc_animal_sound_sheep"; 	    _animalAceOffset = [0,0.5,0.8];	};
+	case "Goat": 	 { _animalClassname = "Goat_random_F"; 	        _animalResponse = localize "STR_CROWSZA_Misc_animal_sound_goat"; 	    _animalAceOffset = [0,0.4,0.7];	}; 
+	case "Rabbit": 	 { _animalClassname = "Rabbit_F"; 		        _animalResponse = localize "STR_CROWSZA_Misc_animal_sound_rabbit"; 	    _animalAceOffset = [0,0.2,0.2];	}; 
+	case "Hen": 	 { _animalClassname = "Hen_random_F"; 	        _animalResponse = localize "STR_CROWSZA_Misc_animal_sound_hen"; 	    _animalAceOffset = [0,0.2,0.3];	}; 
+	case "Snake": 	 { _animalClassname = "Snake_random_F"; 	    _animalResponse = localize "STR_CROWSZA_Misc_animal_sound_snake"; 	    _animalAceOffset = [0,0,0];		};  
+	case "Dromedary":{ _animalClassname = "Dromedary_random_lxWS";  _animalResponse = localize "STR_CROWSZA_Misc_animal_sound_dromedary";   _animalAceOffset = [0,1.2,1.4];	};
+	case "Rat":		 { _animalClassname = "SPE_Black_Rat";  		_animalResponse = localize "STR_CROWSZA_Misc_animal_sound_rat";   		_animalAceOffset = [0,0,0];		};
+	default 		 { _animalClassname = "Fin_random_F"; 	        _animalResponse = localize "STR_CROWSZA_Misc_animal_sound_dog"; 	    _animalAceOffset = [0,0,0.5]; 	}; // Dog as default
+};
 
 GVAR(addAceActionPetDog) = 
 {
@@ -57,7 +63,7 @@ for "_x" from 1 to round _amount do {
 	};
 
 	//save animal to public var
-	GVAR(animalFollowList) pushback _animal;
+	GVAR(animalFollowList) pushBack _animal;
 
 	//make animal curator editable 
 	["zen_common_updateEditableObjects", [[_animal]]] call CBA_fnc_serverEvent;
@@ -92,12 +98,26 @@ for "_x" from 1 to round _amount do {
 	// spawn thread that handle behaviour
 	[_src, _animal, _animalType, _attack] spawn { 
 		params["_src", "_animal", "_animalType", "_attack"]; 
-		_animalGoMove = _animalType + "_Run"; _animalIdleMove = _animalType + "_Idle_Stop"; 
+		
+		_animalGoMove = switch (_animalType) do {
+			case "Dog": 	  { "Dog_Sprint" }; 
+			case "Rabbit": 	  { "Rabbit_Hop" }; 
+			case "Hen": 	  { "Hen_Walk" }; 
+			case "Snake": 	  { "Snakes_Move" }; 
+			case "Dromedary": { "Camel_Walk" };
+			case "Rat": 	  { "SPE_Rat_idle_Sprint" };
+			default { _animalType + "_Run" };
+		};
+		
+		_animalIdleMove = switch (_animalType) do {
+			case "Snake": 	  { "Snakes_Idle_Stop" }; 
+			case "Dromedary": { "Camel_Idle_Stop" };
+			case "Rat": 	  { "SPE_Rat_Idle_Stop" };
+			default { _animalType + "_Idle_Stop" };
+		};
 
-		if ( _animalType == "Dog" ) then { _animalGoMove = "Dog_Sprint"; }; 
-		if ( _animalType == "Rabbit" ) then { _animalGoMove = "Rabbit_Hop"; }; 
-		if ( _animalType == "Hen" ) then { _animalGoMove = "Hen_Walk"; }; 
-		if ( _animalType == "Snake" ) then { _animalGoMove = "Snakes_Move"; }; 
+
+
 
 		_moveDist = 3; 
 		_animalMoving = false; 
@@ -120,7 +140,7 @@ for "_x" from 1 to round _amount do {
 				}; 
 			}; 
 
-			if ( _animalMoving ) then { _animal moveto getPos _src; }; 
+			if ( _animalMoving ) then { _animal moveTo getPos _src; }; 
 
 			// if attack, get closest unit and attack it
 			if (_attack) then {

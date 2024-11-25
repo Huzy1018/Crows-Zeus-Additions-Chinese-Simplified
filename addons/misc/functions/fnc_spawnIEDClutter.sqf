@@ -237,6 +237,7 @@ for "_i" from 1 to _iedAmount do {
 	} else {
 		_ied = _ied createVehicle _safePos;
 		_ied setDir (random 360);
+		["zen_common_updateEditableObjects", [[_ied]]] call CBA_fnc_serverEvent;
 	};
 
 	// If ace isn't loaded, mimic an ace pressure-plate ied
@@ -253,7 +254,7 @@ for "_i" from 1 to _iedAmount do {
 
 		private _activation = "
 		(thisTrigger getVariable ""_ied"") setDamage 1;
-		deletevehicle thisTrigger;
+		deleteVehicle thisTrigger;
 		";
 
 		_trigger setTriggerStatements [
