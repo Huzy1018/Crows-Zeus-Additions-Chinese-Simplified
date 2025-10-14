@@ -27,11 +27,17 @@ if (GVAR(CBA_Setting_fade_enabled) && _fadeDiff > GVAR(CBA_Setting_fade_duration
 	GVAR(faded) = true;
 };
 
-// check if anything to draw 
-if (count GVAR(ping_list) == 0) exitWith {};
+// Resize HUD according to CBA settings
+private _desiredSize = GVAR(CBA_Setting_Pingbox_Size);
+if (not (GVAR(currentSize) isEqualTo _desiredSize)) then {
+	[_desiredSize] call FUNC(resizePingBoxHUD);
+};
 
 //get display
 private _display = uiNamespace getVariable "crowsza_pingbox_hud";
+
+// check if anything to draw 
+if (count GVAR(ping_list) == 0) exitWith {};
 
 //get list 
 private _ctrlList = _display displayCtrl IDC_PINGBOX_LIST;
@@ -42,9 +48,13 @@ lnbClear _ctrlList;
 private _delArr = [];
 // add new entry
 {
-	_x params ["_player", "_pingtime"];
+	_x params ["_player", "_pingtime", "_numPings"];
 	private _timeDiff = round(time - _pingtime);
 	private _name = name _player;
+	
+	if (_numPings > 1) then {
+		_name = format ["%1 (%2)", _name, _numPings];
+	};
 
 	// if we are over the set threshold, we should not draw and remove instead
 	if (_timeDiff > GVAR(CBA_Setting_oldLimit)) then {

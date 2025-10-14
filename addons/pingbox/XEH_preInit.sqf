@@ -21,6 +21,19 @@ GVAR(hidden) = false;
 	FUNC(enablePingBoxHUD) // function that will be executed once on mission start and every time the setting is changed.
 ] call CBA_fnc_addSetting;
 
+[
+	QGVAR(CBA_Setting_Pingbox_Size), 
+	"LIST",     
+	[localize "STR_CROWSZA_Pingbox_setting_size", localize "STR_CROWSZA_Pingbox_setting_size_tooltip"], 
+	["Crows Zeus Additions", "PingBox"], 
+	[[3, 5, 7], [localize "STR_CROWSZA_Pingbox_setting_size_option_small",
+         localize "STR_CROWSZA_Pingbox_setting_size_option_medium",
+         localize "STR_CROWSZA_Pingbox_setting_size_option_large"
+	], 0],
+	0,
+	FUNC(resizePingBoxHUD)
+] call CBA_fnc_addSetting;
+
 // TIME before removing old entries
 [
 	QGVAR(CBA_Setting_oldLimit),
@@ -28,6 +41,15 @@ GVAR(hidden) = false;
 	[localize "STR_CROWSZA_Pingbox_setting_threshold", localize "STR_CROWSZA_Pingbox_setting_threshold_tooltip"],
 	["Crows Zeus Additions", "PingBox"],
 	[1, 900, 600, 0] // data for this setting: [min, max, default, number of shown trailing decimals]
+] call CBA_fnc_addSetting;
+
+// TIME window where pings would be grouped together into one spam ping
+[
+	QGVAR(CBA_Setting_spamPing_threshold),
+	"SLIDER",
+	[localize "STR_CROWSZA_Pingbox_setting_spamPing_threshold", localize "STR_CROWSZA_Pingbox_setting_spamPing_threshold_tooltip"],
+	["Crows Zeus Additions", "PingBox"],
+	[0, 120, 60, 0] // data for this setting: [min, max, default, number of shown trailing decimals]
 ] call CBA_fnc_addSetting;
 
 // FADE OUT for pingbox
